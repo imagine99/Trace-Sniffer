@@ -94,8 +94,8 @@ int main(int argc, char* argv[]) {
 	
 		while(repliedPacketsCnt < REQUESTS_PER_TTL) {
 		  	struct sockaddr_in from; //LHJ
-			int sl; //LHJ
-			sizeof(from);
+			socklen_t sl; //LHJ
+			sl=sizeof(from);
 			int RecvRetVal = Recvfrom(sockId, replyBuffer, BUFFER_SIZE, 0, (struct sockaddr_in*)&from, &sl);  // wait 1 ms for a packet (at most) & LHJ
 			gettimeofday(&current, NULL);
 			
@@ -120,11 +120,13 @@ int main(int argc, char* argv[]) {
 			
 			if(ntohs(icmpHeader->icmp_id) != pid || sequence - ntohs(icmpHeader->icmp_seq) >= REQUESTS_PER_TTL) continue;
 			// is icmp_id equal to our pid and it's one of the latest (three) packets sent?
+			printf("\n----------------------\n");
 			printf("reply from %s\n", inet_ntoa(from.sin_addr));//LHJ
 			printf("Type : %d\n", icmpHeader->icmp_type);
 			printf("Code : %d\n", icmpHeader->icmp_code);
 			printf("Seq : %d\n",icmpHeader->icmp_seq);
 			printf("Iden : %d\n",icmpHeader->icmp_id);
+			printf("----------------------\n");
 			elapsedTime += timeDifference(sendTime[(ntohs(icmpHeader->icmp_seq)-1) % REQUESTS_PER_TTL], current);
 			insert(ipsThatReplied, reply->ip_src);
 			repliedPacketsCnt++;
